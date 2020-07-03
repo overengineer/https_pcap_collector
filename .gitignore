@@ -1,0 +1,6 @@
+*.pcapng
+*.pcap
+pcaps/*
+*.csv
+stats
+

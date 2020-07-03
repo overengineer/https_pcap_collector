@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+[[  $(tshark -r $1) ]] && echo true || rm $1 echo false

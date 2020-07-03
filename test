@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+import subprocess, re, glob, os
+EXEC_PATH = "/home/alper/Workspace/pocs/acu-cl-pc-poc/pc_test"
+PCAPS_PATH = "/home/alper/Workspace/pcap_generator"
+
+scores = [0,0]
+for i, filename in enumerate(glob.glob("pcaps/*.pcapng")):
+    try:
+        print('\r', i, scores, end='')
+        p = subprocess.Popen([EXEC_PATH, "--file", os.path.join(PCAPS_PATH, filename)], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        if not 'PrintableString' in str(out) and not 'SNI' in str(out):
+            continue
+        hostname = re.sub(r'^http[s]','',
+            filename.replace('.pcapng', '').replace('www.','').split('/')[-1].split(':')[0])
+        scores[int(any(filter(lambda s: hostname in s, out.decode('unicode_escape').split("\n"))))] += 1
+    except Exception as ex:
+        print(ex)
+print('')
+print(scores)

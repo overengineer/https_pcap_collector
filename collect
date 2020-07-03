@@ -1,0 +1,18 @@
+#!/bin/bash
+
+cd pcaps
+filename=$(echo $1 | tr -d /).pcapng 
+if [[ -f $filename && $(tshark -r $filename 2>/dev/null) ]]; then
+    exit
+fi
+echo $filename
+touch $filename
+chmod o=rw $filename
+tshark -Q -f "tcp port 443" -w $filename > /dev/null 2>&1  & 
+PID=$!
+
+user_agent="User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36"
+curl -m 10 --ssl --insecure  -H $user_agent -s  https://$1 > /dev/null 2>&1
+sleep 1
+kill -SIGINT $PID
+
